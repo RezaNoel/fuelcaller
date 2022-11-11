@@ -1,11 +1,11 @@
 E=38
+minifuel=false
 
 ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
                      
-function openmenu()
+function openmenu(source)
     ESX.UI.Menu.CloseAll()
-
     ESX.UI.Menu.Open('default', GetCurrentResourceName(), 'fuels', {
 
         title = 'Fuel Station',
@@ -13,14 +13,15 @@ function openmenu()
         align = 'top-left',
 
         elements = {
-            { label = '10 Litre = 200 $', value = '10' },
-            { label = 'Full Gas Tank = 1000 $', value = 'full' },
+            { label = '10 Litre = 200$', value = '10' },
+            { label = 'Full Gas Tank = 1000$', value = 'full' },
 
         }
 
 
     }, function(data, menu)
         if data.current.value == '10' then
+            if minifuel == false then
             ESX.UI.Menu.Open('default', GetCurrentResourceName(), '10litre', {
 
                 title = 'Cash here',
@@ -36,25 +37,22 @@ function openmenu()
         
             }, function(data, menu)
                 if data.current.value == 'cash' then
-                    if cash>=200 then
-                        SetVehicleFuelLevel(veh,10.0)
-                        xPlayer.removeAccountMoney('money', 200)
-                        menu.close()
-                    else
-                        TriggerEvent("chatMessage","[Error]",{255,255,0},"Pol kafi nadarid")
-                    end
+                    minifuel=true
+                    SetVehicleFuelLevel(veh,10.0)
+                    TriggerServerEvent("fuelcaller-1-2:removemoney",GetPlayerServerId(PlayerId()),100)
+                    menu.close()
+                    
                 elseif data.current.value == 'bank' then
-                    if bank>=200 then
-                        SetVehicleFuelLevel(veh,10.0)
-                        xPlayer.removeAccountMoney('bank', 200)
-                        menu.close()
-                    else
-                        TriggerEvent("chatMessage","[Error]",{255,255,0},"Pol kafi nadarid")
-                    end
-        
+                    minifuel=true
+                    SetVehicleFuelLevel(veh,10.0)
+                    TriggerServerEvent("fuelcaller-1-2:removemoney",GetPlayerServerId(PlayerId()),100)
+                    menu.close()            
                 end-----First If
         
             end,function(data, menu)menu.close()end)---end menu
+            else
+                        TriggerEvent("chatMessage","[Error]",{255,255,0},"Yekbar 10 Litre Gereftid")
+            end
                 
 
         elseif data.current.value == 'full' then
@@ -75,7 +73,6 @@ function openmenu()
                 if data.current.value == 'cash' then
                     if cash>=1000 then
                         SetVehicleFuelLevel(veh,100.0)
-                        xPlayer.removeAccountMoney('money', 1000)
                         menu.close()
                     else
                         TriggerEvent("chatMessage","[Error]",{255,255,0},"Pol kafi nadarid")
@@ -83,7 +80,6 @@ function openmenu()
                 elseif data.current.value == 'bank' then
                     if bank>=1000 then
                         SetVehicleFuelLevel(veh,100.0)
-                        xPlayer.removeAccountMoney('bank', 1000)
                         menu.close()
                     else
                         TriggerEvent("chatMessage","[Error]",{255,255,0},"Pol kafi nadarid")
@@ -100,11 +96,6 @@ function openmenu()
 end
 ------------منو ها با کم کردن پول کامل شد فقط باید تست کرد
 CreateThread(function (source)
-    
-        _source = source
-        xPlayer = ESX.GetPlayerFromId(_source)
-        cash=xPlayer.getAccount('money')
-        bank=xPlayer.getAccount('bank')
     
     while true do 
     Wait(100)
@@ -133,7 +124,7 @@ function alert(msg)
 end
 
 
-RegisterCommand("setf", function (player,level)
+RegisterCommand("setf", function ()
     SetVehicleFuelLevel(veh,3.2)
 end, false)
 
